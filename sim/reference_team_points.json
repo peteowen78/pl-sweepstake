@@ -1,0 +1,70 @@
+{
+  "pots": {
+    "A": {
+      "draw": 1,
+      "teams": [
+        "Liverpool",
+        "Arsenal",
+        "Man City",
+        "Chelsea",
+        "Man United"
+      ],
+      "win": 2
+    },
+    "B": {
+      "draw": 2,
+      "teams": [
+        "Newcastle",
+        "Tottenham",
+        "Aston Villa",
+        "Brighton"
+      ],
+      "win": 4
+    },
+    "C": {
+      "draw": 3,
+      "teams": [
+        "Crystal Palace",
+        "Nott'm Forest",
+        "Bournemouth",
+        "Everton",
+        "Fulham",
+        "Brentford"
+      ],
+      "win": 6
+    },
+    "D": {
+      "draw": 4,
+      "teams": [
+        "West Ham",
+        "Wolves",
+        "Leeds",
+        "Burnley",
+        "Sunderland"
+      ],
+      "win": 8
+    }
+  },
+  "teamPoints": {
+    "Arsenal": 68,
+    "Aston Villa": 99,
+    "Bournemouth": 138,
+    "Brentford": 127,
+    "Brighton": 83,
+    "Burnley": 75,
+    "Chelsea": 45,
+    "Crystal Palace": 105,
+    "Everton": 113,
+    "Fulham": 117,
+    "Leeds": 152,
+    "Liverpool": 49,
+    "Man City": 70,
+    "Man United": 61,
+    "Newcastle": 75,
+    "Nott'm Forest": 107,
+    "Sunderland": 165,
+    "Tottenham": 65,
+    "West Ham": 122,
+    "Wolves": 69
+  }
+}

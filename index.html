@@ -1778,6 +1778,9 @@ function buildGWGroups() {
   let total = 0;
   for (const [id, r] of Object.entries(state.results || {})) {
     if (!r || !r.team1 || !r.team2) continue;
+    // Defensive: ids are interpolated into element ids/onclick attributes, so
+    // only accept plain keys (FPL ids look like "f123")
+    if (!/^[\w-]+$/.test(id)) continue;
     total++;
     const fx = { id, ...r };
     if (Number.isInteger(r.gw) && r.gw >= 1 && r.gw <= 38) {
@@ -1889,6 +1892,11 @@ function selectAdminGW(gw) {
 function renderAdminResults() {
   const el = document.getElementById('admin-results');
   if (!el) return;
+  // Don't clobber a half-typed score: if the admin is focused in one of the
+  // score inputs, skip this re-render (the next feed tick or tab switch will
+  // catch the view up).
+  const focused = document.activeElement;
+  if (focused && focused.classList && focused.classList.contains('score-input') && el.contains(focused)) return;
   const groups = buildGWGroups();
 
   if (!groups.total) {
@@ -1923,10 +1931,10 @@ function renderAdminResults() {
 }
 
 async function saveOverride(fid) {
-  const s1 = parseInt(document.getElementById('ov1-' + fid).value, 10);
-  const s2 = parseInt(document.getElementById('ov2-' + fid).value, 10);
+  const s1 = document.getElementById('ov1-' + fid).valueAsNumber;
+  const s2 = document.getElementById('ov2-' + fid).valueAsNumber;
   if (!Number.isInteger(s1) || !Number.isInteger(s2) || s1 < 0 || s2 < 0) {
-    return toast('Enter both scores first', 'error');
+    return toast('Enter both scores as whole numbers', 'error');
   }
   await writeResultPatch(fid, { score1: s1, score2: s2, finished: true }, 'Result saved');
 }
@@ -1953,8 +1961,9 @@ async function writeResultPatch(fid, patch, okMsg) {
   refreshAfterResultChange();
 }
 
-// Re-render everything that shows results (offline path — online the Firebase
-// listener does the same when the write echoes back)
+// Re-render everything that shows results. Called after every save/clear
+// (online AND offline) for instant feedback — online, the Firebase listener
+// re-renders again when the write echoes back, which is harmless.
 function refreshAfterResultChange() {
   renderLeaderboard();
   if (document.getElementById('view-fixtures').classList.contains('active')) renderFixtures();

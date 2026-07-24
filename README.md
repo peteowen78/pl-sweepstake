@@ -36,7 +36,8 @@ Admin → Settings after your first login.
 ### 1. Firebase project (needs Pete's Google account)
 
 1. [console.firebase.google.com](https://console.firebase.google.com) → Add project → name it (e.g. `pl-sweepstake`). Analytics off is fine.
-2. Build → Realtime Database → Create database → **europe-west1** → start in test mode.
+2. Databases & Storage (left sidebar) → Realtime Database → Create database →
+   **europe-west1** → start in test mode.
 3. Rules tab → set and publish:
    ```json
    { "rules": { ".read": true, ".write": true } }

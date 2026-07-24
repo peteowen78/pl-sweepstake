@@ -1,0 +1,14 @@
+name: Update results
+on:
+  schedule:
+    - cron: '15 * * * *'   # hourly at :15 UTC
+  workflow_dispatch: {}     # manual "run now" button
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Mirror FPL results into Firebase
+        env:
+          FIREBASE_DB_URL: ${{ vars.FIREBASE_DB_URL }}
+        run: python3 scripts/update_results.py

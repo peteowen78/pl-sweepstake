@@ -29,7 +29,6 @@
   --pot-c:       #04F5FF;
   --pot-d:       #00FF85;
   --radius:      18px;
-  --entry-fee:   5;
 }
 
 html { scroll-behavior: smooth; }
@@ -1065,7 +1064,7 @@ main {
     <div class="entry-summary-row"><span class="entry-summary-label">Name</span><span class="entry-summary-value" id="summary-name">—</span></div>
     <div class="entry-summary-row"><span class="entry-summary-label">Email</span><span class="entry-summary-value" id="summary-email">—</span></div>
     <div id="summary-teams"></div>
-    <div class="entry-summary-row"><span class="entry-summary-label">Entry fee</span><span class="entry-summary-value">£<span id="summary-fee">5</span></span></div>
+    <div class="entry-summary-row"><span class="entry-summary-label">Entry fee</span><span class="entry-summary-value">£<span id="summary-fee">2</span></span></div>
   </div>
 
   <button class="btn-primary" id="submit-btn" disabled onclick="submitEntry()">Submit entry →</button>
@@ -1396,16 +1395,25 @@ function renderLeaderboard() {
     return;
   }
 
-  // Sort by points descending
+  // Sort by points descending, then standard competition ranking:
+  // equal points share a rank, the next rank skips (1, 1, 3).
   const ranked = entries.map(e => ({ ...e, pts: calcEntryPoints(e) }))
     .sort((a, b) => b.pts - a.pts);
+  ranked.forEach((e, i) => {
+    e.rank = (i > 0 && e.pts === ranked[i - 1].pts) ? ranked[i - 1].rank : i;
+  });
+  const tieSize = pts => ranked.filter(x => x.pts === pts).length;
 
-  // Handle tied prize positions
-  function prizeForRank(idx) {
-    if (idx === 0) return '🥇 ' + (pot * 0.5).toFixed(0);
-    if (idx === 1) return '🥈 ' + (pot * 0.3).toFixed(0);
-    if (idx === 2) return '🥉 ' + (pot * 0.2).toFixed(0);
-    return null;
+  // Prize label per row. A solo prize position shows its exact amount; a tie
+  // group overlapping the prize positions shows a "shared" label instead —
+  // the actual split is settled offline (spec: Ties).
+  const MEDALS = ['🥇', '🥈', '🥉'];
+  const SHARES = [0.5, 0.3, 0.2];
+  function prizeForEntry(e) {
+    if (e.rank > 2) return null;
+    const size = tieSize(e.pts);
+    if (size > 1) return MEDALS.slice(e.rank, Math.min(e.rank + size, 3)).join('') + ' shared';
+    return '£' + (pot * SHARES[e.rank]).toFixed(0);
   }
 
   // Podium: only once every seeded fixture has finished
@@ -1413,8 +1421,22 @@ function renderLeaderboard() {
   const seasonOver = allResults.length > 0 && allResults.every(r => r && r.finished);
   const podiumEl = document.getElementById('podium-widget');
   if (seasonOver && ranked.length >= 3) {
-    const [g, s, b] = ranked;
-    const col = (e, place, medal, share) => `
+    const topTie = tieSize(ranked[0].pts) > 1 || tieSize(ranked[1].pts) > 1 || tieSize(ranked[2].pts) > 1;
+    if (topTie) {
+      // A tie in the top three: podium blocks would misstate the order, so
+      // show a note and let the leaderboard's shared ranks tell the story.
+      podiumEl.innerHTML = `
+        <div class="podium-card">
+          <div class="podium-title">🏆 Final Standings</div>
+          <div class="podium-sub">Premier League 2026/27 · that's a wrap!</div>
+          <div style="font-size:13px; color:var(--muted); padding:0 8px 8px">
+            The top three includes a points tie — tied positions share the rank
+            and split the prize money between them. Full standings below.
+          </div>
+        </div>`;
+    } else {
+      const [g, s, b] = ranked;
+      const col = (e, place, medal, share) => `
       <div class="podium-col">
         <div class="podium-medal">${medal}</div>
         <div class="podium-name">${esc(e.name)}</div>
@@ -1422,7 +1444,7 @@ function renderLeaderboard() {
         <div class="podium-prize">£${(pot * share).toFixed(0)}</div>
         <div class="podium-block p${place}">${place}</div>
       </div>`;
-    podiumEl.innerHTML = `
+      podiumEl.innerHTML = `
       <div class="podium-card">
         <div class="podium-title">🏆 Final Standings</div>
         <div class="podium-sub">Premier League 2026/27 · that's a wrap!</div>
@@ -1432,12 +1454,12 @@ function renderLeaderboard() {
           ${col(b, 3, '🥉', 0.2)}
         </div>
       </div>`;
+    }
   } else {
     podiumEl.innerHTML = '';
   }
 
   const visible = ranked
-    .map((e, i) => ({ ...e, rank: i }))
     .filter(e => !teamFilter || Object.values(e.teams || {}).includes(teamFilter))
     .filter(e => !nameFilter || (e.name || '').toLowerCase().includes(nameFilter));
 
@@ -1466,7 +1488,7 @@ function renderLeaderboard() {
     const i = e.rank;
     const topClass = i === 0 ? 'top-1' : i === 1 ? 'top-2' : i === 2 ? 'top-3' : '';
     const unpaidClass = !e.paid ? 'unpaid' : '';
-    const prize = prizeForRank(i);
+    const prize = prizeForEntry(e);
     const teamTags = Object.entries(e.teams || {}).map(([pot, team]) => {
       const teamPts = calcTeamPoints(team);
       return `<span class="pot-tag ${pot}" title="${teamPts} points">${teamBadge(team)} ${esc(team)} <span style="font-weight:700;color:inherit;opacity:0.8">${teamPts}</span></span>`;
@@ -1481,7 +1503,7 @@ function renderLeaderboard() {
       </td>
       <td>
         <div class="lb-points">${e.pts}</div>
-        ${prize && e.paid ? `<div class="lb-prize">£${prize.replace(/[^\d.]/g,'')}</div>` : ''}
+        ${prize && e.paid ? `<div class="lb-prize">${prize}</div>` : ''}
       </td>
     </tr>`;
   });
@@ -1662,7 +1684,7 @@ function adminLogout() {
 }
 
 function saveSetting(key, value) {
-  state.settings[key] = key === 'entryFee' ? parseFloat(value)
+  state.settings[key] = key === 'entryFee' ? (parseFloat(value) || 2)
                       : key === 'entriesLocked' ? !!value
                       : value;
   const ref = dbRef('settings');
@@ -1940,8 +1962,13 @@ function scrollActiveTab(containerEl) {
 }
 
 // One team cell with its pot-coloured tag
+const warnedUnknownTeams = new Set(); // warn once per team, not once per render
 function fixtureTeamHTML(name, right) {
   const pot = scoring.teamPot[name];
+  if (!pot && !warnedUnknownTeams.has(name)) {
+    warnedUnknownTeams.add(name);
+    console.warn(`Unknown team in results: "${name}" is not in any pot, so it scores no points. Did FPL rename a club? Update POTS in index.html if so.`);
+  }
   const inner = pot
     ? `<span class="pot-tag ${pot}">${teamBadge(name)} ${esc(name)}</span>`
     : esc(name);

@@ -28,6 +28,9 @@ python3 -m unittest discover -s Premierleague/tests     # FPL transform tests
 validated the format; `sim/reference_team_points.json` is the scoring ground
 truth the JS tests compare against.
 
+**Admin access:** the default admin password is `plsweep` — change it in
+Admin → Settings after your first login.
+
 ## One-time setup
 
 ### 1. Firebase project (needs Pete's Google account)

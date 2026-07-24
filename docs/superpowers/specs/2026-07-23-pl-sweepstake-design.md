@@ -24,8 +24,12 @@ gap at the top. See "Simulation findings" below.
 |-----|-------|-----|------|
 | A | Arsenal, Man City, Liverpool, Man Utd, Chelsea | 2 | 1 |
 | B | Tottenham, Aston Villa, Newcastle, Brighton | 4 | 2 |
-| C | Bournemouth, Everton, Brentford, Nott'm Forest, Crystal Palace, Leeds | 6 | 3 |
-| D | Fulham, Sunderland, Coventry, Ipswich, Hull | 8 | 4 |
+| C | Bournemouth, Everton, Brentford, Nott'm Forest, Crystal Palace, Leeds, Fulham | 6 | 3 |
+| D | Sunderland, Coventry, Ipswich, Hull | 8 | 4 |
+
+(Fulham moved C-ward 24 Jul 2026 after a multi-source odds check — priced 500/1,
+level with Leeds/Palace, not with the 750/1+ outsiders. Pots now 5/4/7/4 = 560
+combinations.)
 
 Pots may be re-checked against the odds just before the draw closes; the table
 is finalised at draw time and the app is built from the final table (combination

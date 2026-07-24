@@ -977,10 +977,10 @@ main {
     </div>
     <button class="menu-toggle" id="menu-toggle" onclick="toggleMenu()">☰</button>
     <nav id="nav-menu">
-      <button class="tab-btn active" onclick="showView('leaderboard'); closeMenu()">Leaderboard</button>
+      <button class="tab-btn" onclick="showView('leaderboard'); closeMenu()">Leaderboard</button>
       <button class="tab-btn" onclick="showView('fixtures'); closeMenu()">Fixtures</button>
       <button class="tab-btn" onclick="showView('rules'); closeMenu()">Rules</button>
-      <button class="tab-btn" onclick="showView('enter'); closeMenu()">Enter</button>
+      <button class="tab-btn active" onclick="showView('enter'); closeMenu()">Enter</button>
       <button class="tab-btn" onclick="showView('admin'); closeMenu()">Admin</button>
     </nav>
   </div>
@@ -989,7 +989,7 @@ main {
 <main>
 
 <!-- ── Leaderboard View ──────────────────────────────────────────────────── -->
-<div id="view-leaderboard" class="view active">
+<div id="view-leaderboard" class="view">
 
   <div class="prize-banner">
     <div>
@@ -1037,7 +1037,7 @@ main {
 </div>
 
 <!-- ── Entry View ────────────────────────────────────────────────────────── -->
-<div id="view-enter" class="view">
+<div id="view-enter" class="view active">
 
   <div class="section-title">Enter the Sweepstake</div>
   <div class="section-sub">£<span id="fee-display-entry">2</span> entry · pick one team from each pot</div>
@@ -1126,23 +1126,23 @@ main {
     <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:12px; margin-top:4px">
       <div>
         <div class="pot-tag A" style="display:inline-block; margin-bottom:6px">POT A — Favourites</div>
-        <div style="font-size:12px; color:var(--muted)">7/4–10/1 odds</div>
+        <div style="font-size:12px; color:var(--muted)">6/4–9/1 odds</div>
         <div style="font-size:12px; margin-top:4px">Arsenal, Man City, Liverpool, Man Utd, Chelsea</div>
       </div>
       <div>
         <div class="pot-tag B" style="display:inline-block; margin-bottom:6px">POT B — Contenders</div>
-        <div style="font-size:12px; color:var(--muted)">28/1–300/1 odds</div>
+        <div style="font-size:12px; color:var(--muted)">16/1–150/1 odds</div>
         <div style="font-size:12px; margin-top:4px">Spurs, Aston Villa, Newcastle, Brighton</div>
       </div>
       <div>
         <div class="pot-tag C" style="display:inline-block; margin-bottom:6px">POT C — Dark Horses</div>
-        <div style="font-size:12px; color:var(--muted)">500/1–750/1 odds</div>
-        <div style="font-size:12px; margin-top:4px">Bournemouth, Everton, Brentford, Nott'm Forest, Crystal Palace, Leeds</div>
+        <div style="font-size:12px; color:var(--muted)">200/1–500/1 odds</div>
+        <div style="font-size:12px; margin-top:4px">Bournemouth, Everton, Brentford, Nott'm Forest, Crystal Palace, Leeds, Fulham</div>
       </div>
       <div>
         <div class="pot-tag D" style="display:inline-block; margin-bottom:6px">POT D — Outsiders</div>
-        <div style="font-size:12px; color:var(--muted)">1000/1+ odds</div>
-        <div style="font-size:12px; margin-top:4px">Fulham, Sunderland, Coventry City, Ipswich Town, Hull City</div>
+        <div style="font-size:12px; color:var(--muted)">750/1+ odds</div>
+        <div style="font-size:12px; margin-top:4px">Sunderland, Coventry City, Ipswich Town, Hull City</div>
       </div>
     </div>
   </div>
@@ -1246,7 +1246,7 @@ function dbRef(p) { return db ? db.ref(ROOT + '/' + p) : null; }
 // ════════════════════════════════════════════════════════════════════════════
 const POTS = {
   A: {
-    label: 'Favourites', odds: '7/4–10/1',
+    label: 'Favourites', odds: '6/4–9/1',
     win: 2, draw: 1,
     teams: [
       {name:'Arsenal'},
@@ -1257,7 +1257,7 @@ const POTS = {
     ]
   },
   B: {
-    label: 'Contenders', odds: '28/1–300/1',
+    label: 'Contenders', odds: '16/1–150/1',
     win: 4, draw: 2,
     teams: [
       {name:'Spurs'},
@@ -1267,7 +1267,7 @@ const POTS = {
     ]
   },
   C: {
-    label: 'Dark Horses', odds: '500/1–750/1',
+    label: 'Dark Horses', odds: '200/1–500/1',
     win: 6, draw: 3,
     teams: [
       {name:'Bournemouth'},
@@ -1276,13 +1276,13 @@ const POTS = {
       {name:"Nott'm Forest"},
       {name:'Crystal Palace'},
       {name:'Leeds'},
+      {name:'Fulham'},
     ]
   },
   D: {
-    label: 'Outsiders', odds: '1000/1+',
+    label: 'Outsiders', odds: '750/1+',
     win: 8, draw: 4,
     teams: [
-      {name:'Fulham'},
       {name:'Sunderland'},
       {name:'Coventry City'},
       {name:'Ipswich Town'},

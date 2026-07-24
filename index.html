@@ -1216,7 +1216,15 @@ main {
 // PASTE plsweep2627 Firebase config here — see README.
 // While firebaseConfig is null the app runs in offline-demo mode (no saving).
 // ════════════════════════════════════════════════════════════════════════════
-const firebaseConfig = null;
+const firebaseConfig = {
+  apiKey:            "AIzaSyAv2YxyPLBY2mRwl1TTy-WLomq0g5baHNY",
+  authDomain:        "pl-sweepstake.firebaseapp.com",
+  databaseURL:       "https://pl-sweepstake-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "pl-sweepstake",
+  storageBucket:     "pl-sweepstake.firebasestorage.app",
+  messagingSenderId: "416804733354",
+  appId:             "1:416804733354:web:088e09fa1e9df774c3ebd3"
+};
 
 let db = null;
 try {

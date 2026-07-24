@@ -32,7 +32,7 @@
 **Firebase data model** (root node `plsweep2627`):
 
 ```
-settings: { entryFee: 5, adminPassword: "...", entriesLocked: false }
+settings: { entryFee: 2, adminPassword: "...", entriesLocked: false }
 entries:  { <pushId>: { name, email, teams: {A,B,C,D}, paid, createdAt } }
 results:  { f<fplFixtureId>: { team1, team2, score1, score2, gw, kickoff, finished } }
 ```
@@ -285,7 +285,7 @@ cp "/Users/peteowen/Projects/WC2026 Sweepstake/index.html" Premierleague/index.h
 
 - Replace `POTS` (WC 1327–1406) with the four 2026–27 pots from the table above. Keep the same shape `{label, odds, win, draw, teams:[{name, flag}]}`; `label`/`odds` per spec table ("Favourites 7/4–10/1", "Contenders 28/1–300/1", "Dark Horses 500/1–750/1", "Outsiders 1000/1+"). For `flag` use a club-coloured emoji (🔴 Arsenal, 🔵 Chelsea etc. — cosmetic, pick sensibly).
 - Delete: `KNOCKOUT_BONUS` (1414), `FIXTURE_DATES` (1417–1526), `KNOCKOUT_FIXTURES` (1534–1570), `GROUP_FIXTURES` (1583–1716), `R32_TEAMS`/`isTeamEliminated`/`eliminationMark` (1790–1832) — replace `eliminationMark(...)` call sites (1990, 2292, 2750) with `''`.
-- State (WC 1726–1731): `matches` → `results: {}`, drop `teamRounds`; settings default `{ entryFee: 5, adminPassword: 'plsweep', entriesLocked: false }`.
+- State (WC 1726–1731): `matches` → `results: {}`, drop `teamRounds`; settings default `{ entryFee: 2, adminPassword: 'plsweep', entriesLocked: false }`.
 - Pot E: `selected` (2014) → `{A:null,B:null,C:null,D:null}` (also the two reset sites 2123, 2136); rules view HTML (1109–1119) → four pots' win/draw values plus the +1 bonus line (keep 1120) and a ties line ("ties share positions and split prize money").
 
 - [ ] **Step 4: Delegate scoring**

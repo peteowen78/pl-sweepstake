@@ -996,7 +996,7 @@ main {
     <div>
       <div class="prize-label">Total Prize Pot</div>
       <div class="prize-total" id="prize-total">£0</div>
-      <div class="entries-count"><span id="entry-count">0</span> entries · £<span id="fee-display">5</span> each</div>
+      <div class="entries-count"><span id="entry-count">0</span> entries · £<span id="fee-display">2</span> each</div>
     </div>
     <div class="prize-splits">
       <div class="prize-place">
@@ -1041,7 +1041,7 @@ main {
 <div id="view-enter" class="view">
 
   <div class="section-title">Enter the Sweepstake</div>
-  <div class="section-sub">£<span id="fee-display-entry">5</span> entry · pick one team from each pot</div>
+  <div class="section-sub">£<span id="fee-display-entry">2</span> entry · pick one team from each pot</div>
   <!-- id must start with "fee-display" — the settings listener auto-updates all such spans -->
 
   <div id="entries-closed-msg" class="card" style="display:none; text-align:center; padding:32px 20px">
@@ -1107,7 +1107,7 @@ main {
 
     <div class="rule-card">
       <div class="rule-card-title">💰 Prize Pot</div>
-      <div class="rule-item"><span class="rule-item-label">Entry fee</span><span class="rule-item-value">£<span id="fee-display-rules">5</span></span></div>
+      <div class="rule-item"><span class="rule-item-label">Entry fee</span><span class="rule-item-value">£<span id="fee-display-rules">2</span></span></div>
       <div class="rule-item"><span class="rule-item-label">🥇 1st place</span><span class="rule-item-value">50%</span></div>
       <div class="rule-item"><span class="rule-item-label">🥈 2nd place</span><span class="rule-item-value">30%</span></div>
       <div class="rule-item"><span class="rule-item-label">🥉 3rd place</span><span class="rule-item-value">20%</span></div>
@@ -1173,7 +1173,7 @@ main {
       <div class="card-title">Settings</div>
       <div class="settings-row">
         <label>Entry fee (£)</label>
-        <input type="number" class="settings-input" id="admin-fee" value="5" min="1" onchange="saveSetting('entryFee', this.value)">
+        <input type="number" class="settings-input" id="admin-fee" value="2" min="1" onchange="saveSetting('entryFee', this.value)">
       </div>
       <div class="settings-row">
         <label>Admin password</label>
@@ -1301,7 +1301,7 @@ function shuffle(arr) {
 let state = {
   entries: {},     // { id: { name, teams:{A,B,C,D}, paid } }
   results: {},     // { fXXX: { team1, team2, score1, score2, finished, kickoff } }
-  settings: { entryFee: 5, adminPassword: 'plsweep', entriesLocked: false }
+  settings: { entryFee: 2, adminPassword: 'plsweep', entriesLocked: false }
 };
 
 let adminUnlocked = false;
@@ -1374,7 +1374,7 @@ function onTeamFilterChange() {
 function renderLeaderboard() {
   populateTeamFilter();
   const entries = Object.values(state.entries);
-  const fee = parseFloat(state.settings.entryFee) || 5;
+  const fee = parseFloat(state.settings.entryFee) || 2;
   const pot = entries.length * fee;
 
   document.getElementById('prize-total').textContent = '£' + pot.toFixed(0);
@@ -1553,7 +1553,7 @@ function updateEntryForm() {
     summary.style.display = 'block';
     document.getElementById('summary-name').textContent = name || '—';
     document.getElementById('summary-email').textContent = email || '—';
-    document.getElementById('summary-fee').textContent = state.settings.entryFee || 5;
+    document.getElementById('summary-fee').textContent = state.settings.entryFee || 2;
 
     let teamsHtml = '';
     for (const [pot, team] of Object.entries(selected)) {
@@ -1687,7 +1687,7 @@ function renderLockButton() {
 // Keep every £-fee span (ids starting "fee-display") in sync with settings —
 // called from the Firebase settings listener AND saveSetting so offline works.
 function syncFeeDisplays() {
-  const fee = parseFloat(state.settings.entryFee) || 5;
+  const fee = parseFloat(state.settings.entryFee) || 2;
   document.querySelectorAll('[id^="fee-display"]').forEach(el => el.textContent = fee);
 }
 
@@ -2077,7 +2077,7 @@ function refreshAfterResultChange() {
 }
 
 function renderAdminPanel() {
-  document.getElementById('admin-fee').value = state.settings.entryFee || 5;
+  document.getElementById('admin-fee').value = state.settings.entryFee || 2;
   renderLockButton();
   renderAdminEntries();
   renderAdminResults();

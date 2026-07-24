@@ -410,10 +410,6 @@ main {
   margin-bottom: 24px;
 }
 
-.form-group {
-  margin-bottom: 24px;
-}
-
 .form-label {
   display: block;
   font-size: 12px;
@@ -438,47 +434,6 @@ main {
 }
 
 .form-input:focus { border-color: var(--gold); }
-
-.pts-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-  min-width: 600px;
-}
-.pts-table th {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--muted);
-  font-weight: 600;
-  padding: 6px 8px;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-.pts-table th:first-child { text-align: left; }
-.pts-table td {
-  padding: 6px 8px;
-  text-align: center;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  color: var(--text);
-}
-.pts-table td:first-child { text-align: left; font-weight: 600; }
-.pts-table tr:hover td { background: rgba(255,255,255,0.03); }
-.pts-table .pts-group-header td {
-  background: rgba(255,255,255,0.04);
-  color: var(--muted);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 600;
-  padding: 4px 8px;
-  border-bottom: none;
-}
-.pts-table .pts-zero { color: var(--muted); }
-.pts-table .pts-pos { color: var(--gold); font-weight: 700; }
-.pts-table .pts-total { font-weight: 700; color: var(--text); border-left: 1px solid var(--border); }
-.pts-table .pts-dash { color: rgba(255,255,255,0.15); }
 
 .team-filter-bar {
   display: flex;
@@ -669,10 +624,6 @@ main {
 
 .admin-login .form-input { margin-bottom: 12px; }
 
-.admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-@media (max-width: 600px) { .admin-grid { grid-template-columns: 1fr; } }
-
 .card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -688,25 +639,7 @@ main {
   color: var(--gold);
 }
 
-/* ── Match entry ─────────────────────────────────────────────────────────── */
-.match-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.match-row:last-child { border-bottom: none; }
-
-.match-team {
-  flex: 1;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.match-team.right { text-align: right; }
-
+/* ── Score inputs ───────────────────────────────────────────────────────── */
 .score-input {
   width: 44px;
   text-align: center;
@@ -723,12 +656,15 @@ main {
 .score-input:focus { border-color: var(--gold); }
 .vs-label { font-size: 11px; color: var(--muted); font-weight: 700; }
 
-/* ── Round selector ─────────────────────────────────────────────────────── */
+/* ── Gameweek selector ──────────────────────────────────────────────────── */
 .round-tabs {
   display: flex;
   gap: 4px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   margin-bottom: 20px;
+  padding-bottom: 6px;
 }
 
 .round-tab {
@@ -741,40 +677,11 @@ main {
   font-weight: 500;
   padding: 6px 12px;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .round-tab.active { background: rgba(245,200,66,0.1); border-color: var(--gold); color: var(--gold); }
-
-/* ── Team status table (admin) ─────────────────────────────────────────── */
-.team-status-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 8px;
-}
-
-.team-status-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.team-status-info { flex: 1; min-width: 0; }
-.team-status-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.team-status-pts { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--gold); }
-
-.round-select {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text);
-  font-size: 11px;
-  padding: 3px 6px;
-  cursor: pointer;
-}
 
 /* ── Rules view ─────────────────────────────────────────────────────────── */
 .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
@@ -873,6 +780,24 @@ main {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.fixture-kickoff {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.3;
+  min-width: 74px;
+}
+
+.fixture-final-score {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: var(--gold);
+  white-space: nowrap;
+  padding: 0 4px;
 }
 
 .fixture-save-btn {
@@ -995,26 +920,6 @@ main {
   text-align: right;
 }
 
-.big-add-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 16px;
-  background: rgba(245,200,66,0.08);
-  border: 1px dashed rgba(245,200,66,0.3);
-  border-radius: var(--radius);
-  color: var(--gold);
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-top: 24px;
-}
-
-.big-add-btn:hover { background: rgba(245,200,66,0.14); border-style: solid; }
 </style>
 </head>
 <body>
@@ -1113,11 +1018,13 @@ main {
 
 </div>
 
-<!-- ── Fixtures View (gameweek view arrives in a later task) ─────────────── -->
+<!-- ── Fixtures View ─────────────────────────────────────────────────────── -->
 <div id="view-fixtures" class="view">
 
   <div class="section-title">Fixtures</div>
-  <div class="section-sub">Gameweek-by-gameweek fixtures and results are coming soon.</div>
+  <div class="section-sub">All 380 games, gameweek by gameweek · kick-off times shown in your local time</div>
+
+  <div id="fixtures-content"></div>
 
 </div>
 
@@ -1144,7 +1051,7 @@ main {
 
     <div class="rule-card">
       <div class="rule-card-title">💰 Prize Pot</div>
-      <div class="rule-item"><span class="rule-item-label">Entry fee</span><span class="rule-item-value">£<span id="fee-display-rules">2</span></span></div>
+      <div class="rule-item"><span class="rule-item-label">Entry fee</span><span class="rule-item-value">£<span id="fee-display-rules">5</span></span></div>
       <div class="rule-item"><span class="rule-item-label">🥇 1st place</span><span class="rule-item-value">50%</span></div>
       <div class="rule-item"><span class="rule-item-label">🥈 2nd place</span><span class="rule-item-value">30%</span></div>
       <div class="rule-item"><span class="rule-item-label">🥉 3rd place</span><span class="rule-item-value">20%</span></div>
@@ -1222,6 +1129,13 @@ main {
     <div class="card" style="margin-bottom:20px">
       <div class="card-title">All Entries</div>
       <div id="admin-entries-list"><div class="loading-spinner">Loading…</div></div>
+    </div>
+
+    <!-- Result override -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-title">Result Override</div>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:14px">The feed overwrites overrides for fixtures FPL marks finished — use for outages only.</p>
+      <div id="admin-results"></div>
     </div>
   </div>
 </div>
@@ -1309,12 +1223,6 @@ const POTS = {
   }
 };
 
-// Build a quick lookup: teamName -> pot key
-const TEAM_POT = {};
-for (const [pot, data] of Object.entries(POTS)) {
-  for (const t of data.teams) TEAM_POT[t.name] = pot;
-}
-
 // Shuffle function
 function shuffle(arr) {
   const result = [...arr];
@@ -1355,6 +1263,7 @@ function showView(name) {
   window.scrollTo(0, 0);
 
   if (name === 'leaderboard') renderLeaderboard();
+  if (name === 'fixtures') renderFixtures();
   if (name === 'admin' && adminUnlocked) renderAdminPanel();
 }
 
@@ -1408,8 +1317,7 @@ function renderLeaderboard() {
 
   document.getElementById('prize-total').textContent = '£' + pot.toFixed(0);
   document.getElementById('entry-count').textContent = entries.length;
-  document.getElementById('fee-display').textContent = fee;
-  document.getElementById('fee-display-rules').textContent = fee;
+  syncFeeDisplays();
   document.getElementById('prize-1st').textContent = '£' + (pot * 0.5).toFixed(0);
   document.getElementById('prize-2nd').textContent = '£' + (pot * 0.3).toFixed(0);
   document.getElementById('prize-3rd').textContent = '£' + (pot * 0.2).toFixed(0);
@@ -1440,7 +1348,7 @@ function renderLeaderboard() {
 
   // Podium: only once every seeded fixture has finished
   const allResults = Object.values(state.results || {});
-  const seasonOver = allResults.length > 0 && allResults.every(r => r.finished);
+  const seasonOver = allResults.length > 0 && allResults.every(r => r && r.finished);
   const podiumEl = document.getElementById('podium-widget');
   if (seasonOver && ranked.length >= 3) {
     const [g, s, b] = ranked;
@@ -1501,7 +1409,7 @@ function renderLeaderboard() {
       const potTeam = POTS[pot]?.teams.find(t => t.name === team);
       const flag = potTeam?.flag || '🏳';
       const teamPts = calcTeamPoints(team);
-      return `<span class="pot-tag ${pot}" title="${teamPts} points">${flag} ${team} <span style="font-weight:700;color:inherit;opacity:0.8">${teamPts}</span></span>`;
+      return `<span class="pot-tag ${pot}" title="${teamPts} points">${flag} ${esc(team)} <span style="font-weight:700;color:inherit;opacity:0.8">${teamPts}</span></span>`;
     }).join('');
 
     html += `<tr class="lb-row ${topClass} ${unpaidClass}">
@@ -1588,7 +1496,7 @@ function updateEntryForm() {
         const potTeam = POTS[pot]?.teams.find(t => t.name === team);
         teamsHtml += `<div class="entry-summary-row">
           <span class="entry-summary-label"><span class="pot-tag ${pot}" style="font-size:10px">POT ${pot}</span></span>
-          <span class="entry-summary-value">${potTeam?.flag || ''} ${team}</span>
+          <span class="entry-summary-value">${potTeam?.flag || ''} ${esc(team)}</span>
         </div>`;
       }
     }
@@ -1681,7 +1589,15 @@ function saveSetting(key, value) {
   state.settings[key] = key === 'entryFee' ? parseFloat(value) : value;
   const ref = dbRef('settings');
   if (ref) ref.update({ [key]: state.settings[key] });
+  if (key === 'entryFee') syncFeeDisplays();
   toast('Saved', 'success');
+}
+
+// Keep every £-fee span (ids starting "fee-display") in sync with settings —
+// called from the Firebase settings listener AND saveSetting so offline works.
+function syncFeeDisplays() {
+  const fee = parseFloat(state.settings.entryFee) || 5;
+  document.querySelectorAll('[id^="fee-display"]').forEach(el => el.textContent = fee);
 }
 
 function renderAdminEntries() {
@@ -1696,7 +1612,7 @@ function renderAdminEntries() {
     const pts = calcEntryPoints(e);
     const teamStr = Object.entries(e.teams||{}).map(([pot,team])=>{
       const t = POTS[pot]?.teams.find(t=>t.name===team);
-      return `${t?.flag||''}${team}`;
+      return `${t?.flag||''}${esc(team)}`;
     }).join(' · ');
 
     html += `<div class="admin-entry-row">
@@ -1748,7 +1664,7 @@ async function deleteEntry(id) {
 // MATCH WIDGETS — driven by state.results (seeded from FPL fixtures)
 // ════════════════════════════════════════════════════════════════════════════
 function teamFlag(name) {
-  return POTS[TEAM_POT[name]]?.teams.find(t => t.name === name)?.flag || '';
+  return POTS[scoring.teamPot[name]]?.teams.find(t => t.name === name)?.flag || '';
 }
 
 // kickoff is an ISO string (may be null/missing) → "Sat 15 Aug<br>15:00"
@@ -1767,6 +1683,21 @@ function byKickoff(a, b) {
   if (!a.kickoff) return 1;
   if (!b.kickoff) return -1;
   return a.kickoff < b.kickoff ? -1 : a.kickoff > b.kickoff ? 1 : 0;
+}
+
+// Sort by kickoff descending (most recent first) — nulls STILL last
+function byKickoffDesc(a, b) {
+  if (!a.kickoff && !b.kickoff) return 0;
+  if (!a.kickoff) return 1;
+  if (!b.kickoff) return -1;
+  return a.kickoff < b.kickoff ? 1 : a.kickoff > b.kickoff ? -1 : 0;
+}
+
+// A fixture only counts as played once it's finished WITH both scores —
+// mirrors scoring.js's played() rule so widgets never disagree with points.
+function isPlayed(r) {
+  return !!r && r.finished === true &&
+    Number.isInteger(r.score1) && Number.isInteger(r.score2);
 }
 
 function renderNextMatches() {
@@ -1805,8 +1736,8 @@ function renderNextMatches() {
 function renderRecentMatches() {
   const widget = document.getElementById('recent-matches-widget');
   const recent = Object.values(state.results || {})
-    .filter(r => r && r.finished)
-    .sort((a, b) => byKickoff(b, a))
+    .filter(isPlayed)
+    .sort(byKickoffDesc)
     .slice(0, 4);
 
   if (!recent.length) {
@@ -1833,9 +1764,207 @@ function renderRecentMatches() {
   widget.innerHTML = html + '</div>';
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// FIXTURES VIEW (public) + RESULT OVERRIDE (admin) — share gameweek helpers
+// ════════════════════════════════════════════════════════════════════════════
+const UNSCHEDULED = 'U'; // tab key for fixtures with gw:null (postponed etc.)
+let fixturesGW = null;   // public view tab pick (null = auto-select current GW)
+let adminGW = null;      // admin override tab pick
+
+// Bucket state.results into gameweeks: { gws: {1:[...],…}, unscheduled: [...], total }
+function buildGWGroups() {
+  const gws = {};
+  const unscheduled = [];
+  let total = 0;
+  for (const [id, r] of Object.entries(state.results || {})) {
+    if (!r || !r.team1 || !r.team2) continue;
+    total++;
+    const fx = { id, ...r };
+    if (Number.isInteger(r.gw) && r.gw >= 1 && r.gw <= 38) {
+      (gws[r.gw] = gws[r.gw] || []).push(fx);
+    } else {
+      unscheduled.push(fx);
+    }
+  }
+  for (const list of Object.values(gws)) list.sort(byKickoff);
+  unscheduled.sort(byKickoff);
+  return { gws, unscheduled, total };
+}
+
+// Current gameweek = first GW with an unfinished fixture, else the last one
+function currentGW(groups) {
+  const gwNums = Object.keys(groups.gws).map(Number).sort((a, b) => a - b);
+  for (const gw of gwNums) {
+    if (groups.gws[gw].some(r => !isPlayed(r))) return gw;
+  }
+  return gwNums.length ? gwNums[gwNums.length - 1] : UNSCHEDULED;
+}
+
+// Which tab to show: the user's pick if it still exists, else the current GW
+function resolveGW(groups, picked) {
+  if (picked === UNSCHEDULED && groups.unscheduled.length) return UNSCHEDULED;
+  if (Number.isInteger(picked) && groups.gws[picked]) return picked;
+  return currentGW(groups);
+}
+
+// Tab strip: ✓ on complete gameweeks, (3/10) on partially finished ones
+function gwTabsHTML(groups, active, handlerName) {
+  const gwNums = Object.keys(groups.gws).map(Number).sort((a, b) => a - b);
+  let html = '<div class="round-tabs">';
+  for (const gw of gwNums) {
+    const fx = groups.gws[gw];
+    const done = fx.filter(isPlayed).length;
+    const mark = done === fx.length ? ' ✓' : done > 0 ? ` (${done}/${fx.length})` : '';
+    html += `<button class="round-tab ${active === gw ? 'active' : ''}" onclick="${handlerName}(${gw})">GW${gw}${mark}</button>`;
+  }
+  if (groups.unscheduled.length) {
+    html += `<button class="round-tab ${active === UNSCHEDULED ? 'active' : ''}" onclick="${handlerName}('${UNSCHEDULED}')">Unscheduled</button>`;
+  }
+  return html + '</div>';
+}
+
+// After a render, scroll the active tab into view inside the (scrolling) strip
+function scrollActiveTab(containerEl) {
+  const tabs = containerEl.querySelector('.round-tabs');
+  const act = tabs && tabs.querySelector('.round-tab.active');
+  if (tabs && act) tabs.scrollLeft = Math.max(0, act.offsetLeft - tabs.clientWidth / 2 + act.clientWidth / 2);
+}
+
+// One team cell with its pot-coloured tag
+function fixtureTeamHTML(name, right) {
+  const pot = scoring.teamPot[name];
+  const inner = pot
+    ? `<span class="pot-tag ${pot}">${teamFlag(name)} ${esc(name)}</span>`
+    : esc(name);
+  return `<div class="fixture-team${right ? ' right' : ''}">${inner}</div>`;
+}
+
+// ── Public fixtures view ────────────────────────────────────────────────────
+function selectFixturesGW(gw) {
+  fixturesGW = gw;
+  renderFixtures();
+}
+
+function renderFixtures() {
+  const el = document.getElementById('fixtures-content');
+  const groups = buildGWGroups();
+
+  if (!groups.total) {
+    el.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📅</div>
+        <div class="empty-state-text">Fixtures appear here once the season data is loaded.</div>
+      </div>`;
+    return;
+  }
+
+  const active = resolveGW(groups, fixturesGW);
+  const fixtures = active === UNSCHEDULED ? groups.unscheduled : groups.gws[active];
+
+  let html = gwTabsHTML(groups, active, 'selectFixturesGW');
+  html += '<div class="card">';
+  fixtures.forEach(r => {
+    const mid = isPlayed(r)
+      ? `<span class="fixture-final-score">${r.score1}–${r.score2}</span>`
+      : `<span class="vs-label">v</span>`;
+    html += `<div class="fixture-row">
+      <div class="fixture-kickoff">${kickoffLabel(r.kickoff)}</div>
+      ${fixtureTeamHTML(r.team1, true)}
+      ${mid}
+      ${fixtureTeamHTML(r.team2, false)}
+    </div>`;
+  });
+  html += '</div>';
+
+  el.innerHTML = html;
+  scrollActiveTab(el);
+}
+
+// ── Admin result override ───────────────────────────────────────────────────
+function selectAdminGW(gw) {
+  adminGW = gw;
+  renderAdminResults();
+}
+
+function renderAdminResults() {
+  const el = document.getElementById('admin-results');
+  if (!el) return;
+  const groups = buildGWGroups();
+
+  if (!groups.total) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px">No fixtures seeded yet.</div>';
+    return;
+  }
+
+  const active = resolveGW(groups, adminGW);
+  const fixtures = active === UNSCHEDULED ? groups.unscheduled : groups.gws[active];
+
+  let html = gwTabsHTML(groups, active, 'selectAdminGW');
+  fixtures.forEach(r => {
+    const played = isPlayed(r);
+    html += `<div class="fixture-row">
+      <div class="fixture-kickoff">${kickoffLabel(r.kickoff)}</div>
+      ${fixtureTeamHTML(r.team1, true)}
+      <div class="fixture-score">
+        <input type="number" class="score-input" id="ov1-${r.id}" min="0" value="${played ? r.score1 : ''}">
+        <span class="vs-label">–</span>
+        <input type="number" class="score-input" id="ov2-${r.id}" min="0" value="${played ? r.score2 : ''}">
+      </div>
+      ${fixtureTeamHTML(r.team2, false)}
+      <button class="fixture-save-btn" onclick="saveOverride('${r.id}')">Save</button>
+      ${r.finished
+        ? `<button class="fixture-delete-btn" title="Clear result" onclick="clearOverride('${r.id}')">✕</button>`
+        : ''}
+    </div>`;
+  });
+
+  el.innerHTML = html;
+  scrollActiveTab(el);
+}
+
+async function saveOverride(fid) {
+  const s1 = parseInt(document.getElementById('ov1-' + fid).value, 10);
+  const s2 = parseInt(document.getElementById('ov2-' + fid).value, 10);
+  if (!Number.isInteger(s1) || !Number.isInteger(s2) || s1 < 0 || s2 < 0) {
+    return toast('Enter both scores first', 'error');
+  }
+  await writeResultPatch(fid, { score1: s1, score2: s2, finished: true }, 'Result saved');
+}
+
+async function clearOverride(fid) {
+  await writeResultPatch(fid, { score1: null, score2: null, finished: false }, 'Result cleared');
+}
+
+async function writeResultPatch(fid, patch, okMsg) {
+  const ref = dbRef('results/' + fid);
+  if (ref) {
+    try {
+      await ref.update(patch);
+    } catch (e) {
+      console.error(e);
+      return toast('Error saving result — check Firebase config', 'error');
+    }
+  } else if (state.results[fid]) {
+    Object.assign(state.results[fid], patch); // offline demo
+  } else {
+    return toast('Unknown fixture', 'error');
+  }
+  toast(okMsg, 'success');
+  refreshAfterResultChange();
+}
+
+// Re-render everything that shows results (offline path — online the Firebase
+// listener does the same when the write echoes back)
+function refreshAfterResultChange() {
+  renderLeaderboard();
+  if (document.getElementById('view-fixtures').classList.contains('active')) renderFixtures();
+  if (adminUnlocked) renderAdminResults();
+}
+
 function renderAdminPanel() {
   document.getElementById('admin-fee').value = state.settings.entryFee || 5;
   renderAdminEntries();
+  renderAdminResults();
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1852,15 +1981,16 @@ function initFirebaseListeners() {
 
   dbRef('results').on('value', snap => {
     state.results = snap.val() || {};
-    if (adminUnlocked) renderAdminEntries();
+    if (adminUnlocked) { renderAdminEntries(); renderAdminResults(); }
     if (document.getElementById('view-leaderboard').classList.contains('active')) renderLeaderboard();
+    if (document.getElementById('view-fixtures').classList.contains('active')) renderFixtures();
   });
 
   dbRef('settings').on('value', snap => {
     const s = snap.val();
     if (s) {
       state.settings = { ...state.settings, ...s };
-      document.querySelectorAll('[id^="fee-display"]').forEach(el => el.textContent = s.entryFee || 5);
+      syncFeeDisplays();
     }
   });
 }

@@ -1002,19 +1002,33 @@ main {
   <div class="section-sub">£<span id="fee-display-entry">5</span> entry · pick one team from each pot</div>
   <!-- id must start with "fee-display" — the settings listener auto-updates all such spans -->
 
+  <div id="entries-closed-msg" class="card" style="display:none; text-align:center; padding:32px 20px">
+    <div style="font-size:32px; margin-bottom:8px">🔒</div>
+    <div style="font-weight:600; font-size:15px">Entries are closed — the season has started</div>
+  </div>
+
+  <div id="entry-form-wrap">
+
   <label class="form-label" for="entry-name">Your name</label>
   <input type="text" class="form-input" id="entry-name" placeholder="Name" oninput="updateEntryForm()">
+
+  <label class="form-label" for="entry-email">Your email</label>
+  <input type="email" class="form-input" id="entry-email" placeholder="Email" oninput="updateEntryForm()">
+  <p style="font-size:12px; color:var(--muted); margin:6px 0 16px">Your email is only used for game updates.</p>
 
   <div id="pot-pickers"></div>
 
   <div id="entry-summary" class="entry-summary" style="display:none">
     <div class="card-title">Your entry</div>
     <div class="entry-summary-row"><span class="entry-summary-label">Name</span><span class="entry-summary-value" id="summary-name">—</span></div>
+    <div class="entry-summary-row"><span class="entry-summary-label">Email</span><span class="entry-summary-value" id="summary-email">—</span></div>
     <div id="summary-teams"></div>
     <div class="entry-summary-row"><span class="entry-summary-label">Entry fee</span><span class="entry-summary-value">£<span id="summary-fee">5</span></span></div>
   </div>
 
   <button class="btn-primary" id="submit-btn" disabled onclick="submitEntry()">Submit entry →</button>
+
+  </div>
 
 </div>
 
@@ -1122,6 +1136,10 @@ main {
       <div class="settings-row">
         <label>Admin password</label>
         <input type="password" class="settings-input" id="admin-pw-change" placeholder="New pw" onchange="saveSetting('adminPassword', this.value)">
+      </div>
+      <div class="settings-row">
+        <label>Entries</label>
+        <button class="btn-secondary" id="admin-lock-btn" style="font-size:12px" onclick="toggleEntriesLock()">🔓 Entries open — click to lock</button>
       </div>
     </div>
 
@@ -1264,6 +1282,7 @@ function showView(name) {
 
   if (name === 'leaderboard') renderLeaderboard();
   if (name === 'fixtures') renderFixtures();
+  if (name === 'enter') renderEnterView();
   if (name === 'admin' && adminUnlocked) renderAdminPanel();
 }
 
@@ -1477,10 +1496,14 @@ function selectTeam(pot, teamName) {
   updateEntryForm();
 }
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function updateEntryForm() {
   const name = document.getElementById('entry-name').value.trim();
+  const email = document.getElementById('entry-email').value.trim();
+  const emailOk = EMAIL_RE.test(email);
   const allPicked = Object.values(selected).every(Boolean);
-  const ready = name && allPicked;
+  const ready = name && emailOk && allPicked;
 
   document.getElementById('submit-btn').disabled = !ready;
 
@@ -1488,6 +1511,7 @@ function updateEntryForm() {
   if (name || allPicked) {
     summary.style.display = 'block';
     document.getElementById('summary-name').textContent = name || '—';
+    document.getElementById('summary-email').textContent = email || '—';
     document.getElementById('summary-fee').textContent = state.settings.entryFee || 5;
 
     let teamsHtml = '';
@@ -1506,6 +1530,13 @@ function updateEntryForm() {
   }
 }
 
+// Show either the entry form or the "entries closed" notice, per settings.
+function renderEnterView() {
+  const locked = !!state.settings.entriesLocked;
+  document.getElementById('entry-form-wrap').style.display = locked ? 'none' : 'block';
+  document.getElementById('entries-closed-msg').style.display = locked ? 'block' : 'none';
+}
+
 function isDuplicateEntry(newTeams) {
   // Check if this exact team combination already exists
   for (const entry of Object.values(state.entries)) {
@@ -1521,7 +1552,9 @@ function isDuplicateEntry(newTeams) {
 async function submitEntry() {
   if (state.settings.entriesLocked) return toast('Entries are locked', 'error');
   const name = document.getElementById('entry-name').value.trim();
+  const email = document.getElementById('entry-email').value.trim();
   if (!name) return toast('Please enter your name', 'error');
+  if (!EMAIL_RE.test(email)) return toast('Please enter a valid email address', 'error');
   if (!Object.values(selected).every(Boolean)) return toast('Please pick a team from every pot', 'error');
 
   // Check for duplicate team combination
@@ -1532,6 +1565,7 @@ async function submitEntry() {
 
   const entry = {
     name,
+    email,
     teams: { ...selected },
     paid: false,
     createdAt: Date.now()
@@ -1545,6 +1579,7 @@ async function submitEntry() {
       // Reset form
       selected = { A: null, B: null, C: null, D: null };
       document.getElementById('entry-name').value = '';
+      document.getElementById('entry-email').value = '';
       buildPotPickers();
       updateEntryForm();
     } catch(e) {
@@ -1558,6 +1593,7 @@ async function submitEntry() {
     toast('Entry saved (offline demo) 🎉', 'success');
     selected = { A: null, B: null, C: null, D: null };
     document.getElementById('entry-name').value = '';
+    document.getElementById('entry-email').value = '';
     buildPotPickers();
     updateEntryForm();
   }
@@ -1586,11 +1622,26 @@ function adminLogout() {
 }
 
 function saveSetting(key, value) {
-  state.settings[key] = key === 'entryFee' ? parseFloat(value) : value;
+  state.settings[key] = key === 'entryFee' ? parseFloat(value)
+                      : key === 'entriesLocked' ? !!value
+                      : value;
   const ref = dbRef('settings');
   if (ref) ref.update({ [key]: state.settings[key] });
   if (key === 'entryFee') syncFeeDisplays();
   toast('Saved', 'success');
+}
+
+function toggleEntriesLock() {
+  saveSetting('entriesLocked', !state.settings.entriesLocked);
+  renderLockButton();
+  renderEnterView();
+}
+
+function renderLockButton() {
+  const btn = document.getElementById('admin-lock-btn');
+  if (btn) btn.textContent = state.settings.entriesLocked
+    ? '🔒 Entries locked — click to unlock'
+    : '🔓 Entries open — click to lock';
 }
 
 // Keep every £-fee span (ids starting "fee-display") in sync with settings —
@@ -1972,6 +2023,7 @@ function refreshAfterResultChange() {
 
 function renderAdminPanel() {
   document.getElementById('admin-fee').value = state.settings.entryFee || 5;
+  renderLockButton();
   renderAdminEntries();
   renderAdminResults();
 }
@@ -2000,6 +2052,8 @@ function initFirebaseListeners() {
     if (s) {
       state.settings = { ...state.settings, ...s };
       syncFeeDisplays();
+      renderEnterView();
+      renderLockButton();
     }
   });
 }
@@ -2029,6 +2083,7 @@ function esc(s) {
 initFirebaseListeners();
 buildPotPickers();
 updateEntryForm();
+renderEnterView();
 renderLeaderboard();
 </script>
 </body>

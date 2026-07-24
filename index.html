@@ -1821,14 +1821,6 @@ function byKickoff(a, b) {
   return a.kickoff < b.kickoff ? -1 : a.kickoff > b.kickoff ? 1 : 0;
 }
 
-// Sort by kickoff descending (most recent first) — nulls STILL last
-function byKickoffDesc(a, b) {
-  if (!a.kickoff && !b.kickoff) return 0;
-  if (!a.kickoff) return 1;
-  if (!b.kickoff) return -1;
-  return a.kickoff < b.kickoff ? 1 : a.kickoff > b.kickoff ? -1 : 0;
-}
-
 // A fixture only counts as played once it's finished WITH both scores —
 // mirrors scoring.js's played() rule so widgets never disagree with points.
 function isPlayed(r) {
@@ -1836,68 +1828,63 @@ function isPlayed(r) {
     Number.isInteger(r.score1) && Number.isInteger(r.score2);
 }
 
+// One leaderboard widget row: score if played, else kickoff time + "vs"
+function widgetRowHTML(m) {
+  const middle = isPlayed(m)
+    ? `<span style="color:var(--purple);font-weight:800;font-size:16px;letter-spacing:-0.01em;white-space:nowrap">${m.score1}–${m.score2}</span>`
+    : `<span style="color:var(--muted);font-weight:700">vs</span>`;
+  return `<div class="next-match-row">
+    <div class="next-match-content">
+      <div class="next-match-datetime">${kickoffLabel(m.kickoff)}</div>
+      <div class="next-match-teams">
+        <div class="next-match-team">${teamBadge(m.team1)} ${esc(m.team1)}</div>
+        ${middle}
+        <div class="next-match-team">${teamBadge(m.team2)} ${esc(m.team2)}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// Leaderboard: the full current gameweek (scores fill in as matches finish)
 function renderNextMatches() {
   const widget = document.getElementById('next-matches-widget');
-  const upcoming = Object.values(state.results || {})
-    .filter(r => r && !r.finished)
-    .sort(byKickoff)
-    .slice(0, 4);
+  const groups = buildGWGroups();
+  const gw = currentGW(groups);
 
-  if (!upcoming.length) {
-    // No fixtures seeded yet (or season complete) → gentle placeholder / nothing
-    const anyResults = Object.keys(state.results || {}).length > 0;
-    widget.innerHTML = anyResults ? '' : `<div class="next-matches"><div class="next-matches-empty">Fixtures coming soon...</div></div>`;
+  if (gw === UNSCHEDULED || !groups.gws[gw]) {
+    widget.innerHTML = groups.total ? '' : `<div class="next-matches"><div class="next-matches-empty">Fixtures coming soon...</div></div>`;
     return;
   }
 
-  let html = `<div class="next-matches">
-    <div class="next-matches-title">⚽ Next Matches</div>`;
-
-  upcoming.forEach(m => {
-    html += `<div class="next-match-row">
-      <div class="next-match-content">
-        <div class="next-match-datetime">${kickoffLabel(m.kickoff)}</div>
-        <div class="next-match-teams">
-          <div class="next-match-team">${teamBadge(m.team1)} ${esc(m.team1)}</div>
-          <span style="color:var(--muted);font-weight:700">vs</span>
-          <div class="next-match-team">${teamBadge(m.team2)} ${esc(m.team2)}</div>
-        </div>
-      </div>
-    </div>`;
-  });
-
-  widget.innerHTML = html + '</div>';
+  const fixtures = groups.gws[gw]; // already kickoff-sorted
+  const done = fixtures.filter(isPlayed).length;
+  widget.innerHTML = `<div class="next-matches">
+    <div class="next-matches-title">⚽ Gameweek ${gw}${done ? ` · ${done}/${fixtures.length} played` : ''}</div>
+    ${fixtures.map(widgetRowHTML).join('')}
+  </div>`;
 }
 
+// Leaderboard: the previous gameweek's results (latest GW before the current
+// one with at least one finished fixture)
 function renderRecentMatches() {
   const widget = document.getElementById('recent-matches-widget');
-  const recent = Object.values(state.results || {})
-    .filter(isPlayed)
-    .sort(byKickoffDesc)
-    .slice(0, 4);
+  const groups = buildGWGroups();
+  const cur = currentGW(groups);
+  const prevGWs = Object.keys(groups.gws).map(Number)
+    .filter(g => (cur === UNSCHEDULED || g < cur) && groups.gws[g].some(isPlayed))
+    .sort((a, b) => b - a);
 
-  if (!recent.length) {
+  if (!prevGWs.length) {
     widget.innerHTML = '';
     return;
   }
 
-  let html = `<div class="next-matches">
-    <div class="next-matches-title">📋 Recent Results</div>`;
-
-  recent.forEach(m => {
-    html += `<div class="next-match-row">
-      <div class="next-match-content">
-        <div class="next-match-datetime">${kickoffLabel(m.kickoff)}</div>
-        <div class="next-match-teams">
-          <div class="next-match-team">${teamBadge(m.team1)} ${esc(m.team1)}</div>
-          <span style="color:var(--purple);font-weight:800;font-size:16px;letter-spacing:-0.01em;white-space:nowrap">${m.score1}–${m.score2}</span>
-          <div class="next-match-team">${teamBadge(m.team2)} ${esc(m.team2)}</div>
-        </div>
-      </div>
-    </div>`;
-  });
-
-  widget.innerHTML = html + '</div>';
+  const gw = prevGWs[0];
+  const played = groups.gws[gw].filter(isPlayed);
+  widget.innerHTML = `<div class="next-matches">
+    <div class="next-matches-title">📋 Gameweek ${gw} Results</div>
+    ${played.map(widgetRowHTML).join('')}
+  </div>`;
 }
 
 // ════════════════════════════════════════════════════════════════════════════

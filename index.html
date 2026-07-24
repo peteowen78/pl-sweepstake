@@ -522,7 +522,8 @@ main {
   color: var(--gold);
 }
 
-.team-flag { font-size: 22px; }
+.team-logo { width: 18px; height: 18px; object-fit: contain; vertical-align: -3px; }
+.team-logo.lg { width: 28px; height: 28px; }
 .team-name-small { font-size: 11px; line-height: 1.2; }
 
 /* ── Submit button ───────────────────────────────────────────────────────── */
@@ -1200,44 +1201,44 @@ const POTS = {
     label: 'Favourites', odds: '7/4–10/1',
     win: 2, draw: 1,
     teams: [
-      {name:'Arsenal',   flag:'🔴'},
-      {name:'Man City',  flag:'🩵'},
-      {name:'Liverpool', flag:'🐦'},
-      {name:'Man Utd',   flag:'👹'},
-      {name:'Chelsea',   flag:'🔵'},
+      {name:'Arsenal'},
+      {name:'Man City'},
+      {name:'Liverpool'},
+      {name:'Man Utd'},
+      {name:'Chelsea'},
     ]
   },
   B: {
     label: 'Contenders', odds: '28/1–300/1',
     win: 4, draw: 2,
     teams: [
-      {name:'Spurs',       flag:'🐓'},
-      {name:'Aston Villa', flag:'🦁'},
-      {name:'Newcastle',   flag:'🐦‍⬛'},
-      {name:'Brighton',    flag:'🕊️'},
+      {name:'Spurs'},
+      {name:'Aston Villa'},
+      {name:'Newcastle'},
+      {name:'Brighton'},
     ]
   },
   C: {
     label: 'Dark Horses', odds: '500/1–750/1',
     win: 6, draw: 3,
     teams: [
-      {name:'Bournemouth',    flag:'🍒'},
-      {name:'Everton',        flag:'🍬'},
-      {name:'Brentford',      flag:'🐝'},
-      {name:"Nott'm Forest",  flag:'🌳'},
-      {name:'Crystal Palace', flag:'🦅'},
-      {name:'Leeds',          flag:'🦚'},
+      {name:'Bournemouth'},
+      {name:'Everton'},
+      {name:'Brentford'},
+      {name:"Nott'm Forest"},
+      {name:'Crystal Palace'},
+      {name:'Leeds'},
     ]
   },
   D: {
     label: 'Outsiders', odds: '1000/1+',
     win: 8, draw: 4,
     teams: [
-      {name:'Fulham',        flag:'⚪'},
-      {name:'Sunderland',    flag:'🐈‍⬛'},
-      {name:'Coventry City', flag:'🐘'},
-      {name:'Ipswich Town',  flag:'🚜'},
-      {name:'Hull City',     flag:'🐯'},
+      {name:'Fulham'},
+      {name:'Sunderland'},
+      {name:'Coventry City'},
+      {name:'Ipswich Town'},
+      {name:'Hull City'},
     ]
   }
 };
@@ -1319,7 +1320,7 @@ function populateTeamFilter() {
   for (const team of allTeams) {
     const opt = document.createElement('option');
     opt.value = team.name;
-    opt.textContent = `${team.flag} ${team.name}`;
+    opt.textContent = team.name;
     select.appendChild(opt);
   }
 }
@@ -1426,10 +1427,8 @@ function renderLeaderboard() {
     const unpaidClass = !e.paid ? 'unpaid' : '';
     const prize = prizeForRank(i);
     const teamTags = Object.entries(e.teams || {}).map(([pot, team]) => {
-      const potTeam = POTS[pot]?.teams.find(t => t.name === team);
-      const flag = potTeam?.flag || '🏳';
       const teamPts = calcTeamPoints(team);
-      return `<span class="pot-tag ${pot}" title="${teamPts} points">${flag} ${esc(team)} <span style="font-weight:700;color:inherit;opacity:0.8">${teamPts}</span></span>`;
+      return `<span class="pot-tag ${pot}" title="${teamPts} points">${teamBadge(team)} ${esc(team)} <span style="font-weight:700;color:inherit;opacity:0.8">${teamPts}</span></span>`;
     }).join('');
 
     html += `<tr class="lb-row ${topClass} ${unpaidClass}">
@@ -1470,7 +1469,7 @@ function buildPotPickers() {
     for (const team of shuffle(data.teams)) {
       html += `<button class="team-btn" id="tbtn-${pot}-${team.name.replace(/\s+/g,'_')}"
         onclick="selectTeam('${pot}','${team.name.replace(/'/g,"\\'")}')">
-        <span class="team-flag">${team.flag}</span>
+        ${teamBadge(team.name, 'lg')}
         <span class="team-name-small">${team.name}</span>
       </button>`;
     }
@@ -1518,10 +1517,9 @@ function updateEntryForm() {
     let teamsHtml = '';
     for (const [pot, team] of Object.entries(selected)) {
       if (team) {
-        const potTeam = POTS[pot]?.teams.find(t => t.name === team);
         teamsHtml += `<div class="entry-summary-row">
           <span class="entry-summary-label"><span class="pot-tag ${pot}" style="font-size:10px">POT ${pot}</span></span>
-          <span class="entry-summary-value">${potTeam?.flag || ''} ${esc(team)}</span>
+          <span class="entry-summary-value">${teamBadge(team)} ${esc(team)}</span>
         </div>`;
       }
     }
@@ -1662,10 +1660,9 @@ function renderAdminEntries() {
   let html = '';
   for (const [id, e] of entries.sort((a,b) => (b[1].createdAt||0)-(a[1].createdAt||0))) {
     const pts = calcEntryPoints(e);
-    const teamStr = Object.entries(e.teams||{}).map(([pot,team])=>{
-      const t = POTS[pot]?.teams.find(t=>t.name===team);
-      return `${t?.flag||''}${esc(team)}`;
-    }).join(' · ');
+    const teamStr = Object.entries(e.teams||{}).map(([pot,team])=>
+      `${teamBadge(team)} ${esc(team)}`
+    ).join(' · ');
 
     html += `<div class="admin-entry-row">
       <span class="paid-badge ${e.paid?'yes':'no'}">${e.paid?'PAID':'UNPAID'}</span>
@@ -1688,6 +1685,7 @@ function renderAdminEntries() {
 function copyAllEmails() {
   const emails = [...new Set(Object.values(state.entries)
     .map(e => (e.email || '').trim().toLowerCase()).filter(Boolean))];
+  if (!navigator.clipboard) return prompt('Copy emails:', emails.join(', '));
   navigator.clipboard.writeText(emails.join(', '))
     .then(() => toast(`${emails.length} unique emails copied`, 'success'))
     .catch(() => prompt('Copy emails:', emails.join(', ')));
@@ -1724,8 +1722,14 @@ async function deleteEntry(id) {
 // ════════════════════════════════════════════════════════════════════════════
 // MATCH WIDGETS — driven by state.results (seeded from FPL fixtures)
 // ════════════════════════════════════════════════════════════════════════════
-function teamFlag(name) {
-  return POTS[scoring.teamPot[name]]?.teams.find(t => t.name === name)?.flag || '';
+// Team name → asset slug, e.g. "Nott'm Forest" → "nottm-forest"
+function teamSlug(name) {
+  return name.toLowerCase().replace(/'/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+// Club crest <img> for a team; hides itself if the asset is missing.
+function teamBadge(name, sizeClass) {
+  return `<img class="team-logo${sizeClass ? ' ' + sizeClass : ''}" src="assets/${teamSlug(name)}.png" alt="" loading="lazy" onerror="this.style.display='none'">`;
 }
 
 // kickoff is an ISO string (may be null/missing) → "Sat 15 Aug<br>15:00"
@@ -1783,9 +1787,9 @@ function renderNextMatches() {
       <div class="next-match-content">
         <div class="next-match-datetime">${kickoffLabel(m.kickoff)}</div>
         <div class="next-match-teams">
-          <div class="next-match-team">${teamFlag(m.team1)} ${esc(m.team1)}</div>
+          <div class="next-match-team">${teamBadge(m.team1)} ${esc(m.team1)}</div>
           <span style="color:var(--muted);font-weight:700">vs</span>
-          <div class="next-match-team">${teamFlag(m.team2)} ${esc(m.team2)}</div>
+          <div class="next-match-team">${teamBadge(m.team2)} ${esc(m.team2)}</div>
         </div>
       </div>
     </div>`;
@@ -1814,9 +1818,9 @@ function renderRecentMatches() {
       <div class="next-match-content">
         <div class="next-match-datetime">${kickoffLabel(m.kickoff)}</div>
         <div class="next-match-teams">
-          <div class="next-match-team">${teamFlag(m.team1)} ${esc(m.team1)}</div>
+          <div class="next-match-team">${teamBadge(m.team1)} ${esc(m.team1)}</div>
           <span style="color:var(--gold);font-weight:700;font-family:'Bebas Neue';font-size:18px">${m.score1}–${m.score2}</span>
-          <div class="next-match-team">${teamFlag(m.team2)} ${esc(m.team2)}</div>
+          <div class="next-match-team">${teamBadge(m.team2)} ${esc(m.team2)}</div>
         </div>
       </div>
     </div>`;
@@ -1898,7 +1902,7 @@ function scrollActiveTab(containerEl) {
 function fixtureTeamHTML(name, right) {
   const pot = scoring.teamPot[name];
   const inner = pot
-    ? `<span class="pot-tag ${pot}">${teamFlag(name)} ${esc(name)}</span>`
+    ? `<span class="pot-tag ${pot}">${teamBadge(name)} ${esc(name)}</span>`
     : esc(name);
   return `<div class="fixture-team${right ? ' right' : ''}">${inner}</div>`;
 }

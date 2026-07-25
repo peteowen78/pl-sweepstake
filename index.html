@@ -1643,8 +1643,11 @@ function renderEnterEntries() {
     const chips = Object.entries(e.teams || {}).map(([pot, team]) =>
       `<span class="pot-tag ${pot}">${teamBadge(team)} ${esc(team)}</span>`
     ).join('');
-    return `<div style="padding:10px 0; border-bottom:1px solid var(--border)">
-      <div style="font-weight:700; font-size:14px; margin-bottom:6px">${esc(e.name)}</div>
+    // Unpaid entries get the same greyed treatment as the leaderboard
+    const unpaidStyle = !e.paid ? 'opacity:0.45; filter:grayscale(0.6)' : '';
+    return `<div style="padding:10px 0; border-bottom:1px solid var(--border); ${unpaidStyle}">
+      <div style="font-weight:700; font-size:14px; margin-bottom:6px">${esc(e.name)}
+        ${!e.paid ? ' <span class="unpaid-badge">⏳ Awaiting payment</span>' : ''}</div>
       <div class="lb-teams">${chips}</div>
     </div>`;
   }).join('');

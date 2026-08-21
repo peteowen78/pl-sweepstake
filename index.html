@@ -977,10 +977,9 @@ main {
     </div>
     <button class="menu-toggle" id="menu-toggle" onclick="toggleMenu()">☰</button>
     <nav id="nav-menu">
-      <button class="tab-btn" onclick="showView('leaderboard'); closeMenu()">Leaderboard</button>
+      <button class="tab-btn active" onclick="showView('leaderboard'); closeMenu()">Leaderboard</button>
       <button class="tab-btn" onclick="showView('fixtures'); closeMenu()">Fixtures</button>
       <button class="tab-btn" onclick="showView('rules'); closeMenu()">Rules</button>
-      <button class="tab-btn active" onclick="showView('enter'); closeMenu()">Enter</button>
       <button class="tab-btn" onclick="showView('admin'); closeMenu()">Admin</button>
     </nav>
   </div>
@@ -989,7 +988,7 @@ main {
 <main>
 
 <!-- ── Leaderboard View ──────────────────────────────────────────────────── -->
-<div id="view-leaderboard" class="view">
+<div id="view-leaderboard" class="view active">
 
   <div class="prize-banner">
     <div>
@@ -1037,47 +1036,6 @@ main {
 </div>
 
 <!-- ── Entry View ────────────────────────────────────────────────────────── -->
-<div id="view-enter" class="view active">
-
-  <div class="section-title">Enter the Sweepstake</div>
-  <div class="section-sub">£<span id="fee-display-entry">2</span> entry · pick one team from each pot</div>
-  <!-- id must start with "fee-display" — the settings listener auto-updates all such spans -->
-  <p id="entry-deadline-note" style="font-size:13px; font-weight:600; color:var(--purple); margin:0 0 6px">⏰ Entries must be in before the first game kicks off.</p>
-  <p style="font-size:13px; font-weight:600; color:var(--purple); margin:0 0 16px">💷 Once you've entered, pay your £<span id="fee-display-pay-entry">2</span> to Pete or Howard — entries count once paid.</p>
-
-  <div id="entries-closed-msg" class="card" style="display:none; text-align:center; padding:32px 20px">
-    <div style="font-size:32px; margin-bottom:8px">🔒</div>
-    <div style="font-weight:600; font-size:15px">Entries are closed — the season has started</div>
-  </div>
-
-  <div id="entry-form-wrap">
-
-  <label class="form-label" for="entry-name">Your name</label>
-  <input type="text" class="form-input" id="entry-name" placeholder="Name" oninput="updateEntryForm()">
-
-  <label class="form-label" for="entry-email">Your email</label>
-  <input type="email" class="form-input" id="entry-email" placeholder="Email" oninput="updateEntryForm()">
-  <p style="font-size:12px; color:var(--muted); margin:6px 0 16px">Your email is only used for game updates.</p>
-
-  <div id="pot-pickers"></div>
-
-  <div id="entry-summary" class="entry-summary" style="display:none">
-    <div class="card-title">Your entry</div>
-    <div class="entry-summary-row"><span class="entry-summary-label">Name</span><span class="entry-summary-value" id="summary-name">—</span></div>
-    <div class="entry-summary-row"><span class="entry-summary-label">Email</span><span class="entry-summary-value" id="summary-email">—</span></div>
-    <div id="summary-teams"></div>
-    <div class="entry-summary-row"><span class="entry-summary-label">Entry fee</span><span class="entry-summary-value">£<span id="summary-fee">2</span></span></div>
-  </div>
-
-  <button class="btn-primary" id="submit-btn" disabled onclick="submitEntry()">Submit entry →</button>
-
-  </div>
-
-  <!-- Current entries — outside the form wrap so it still shows once entries close -->
-  <div id="enter-entries" style="margin-top:28px"></div>
-
-</div>
-
 <!-- ── Fixtures View ─────────────────────────────────────────────────────── -->
 <div id="view-fixtures" class="view">
 
@@ -1298,15 +1256,6 @@ const POTS = {
   }
 };
 
-// Shuffle function
-function shuffle(arr) {
-  const result = [...arr];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result;
-}
 
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1339,7 +1288,6 @@ function showView(name) {
 
   if (name === 'leaderboard') renderLeaderboard();
   if (name === 'fixtures') renderFixtures();
-  if (name === 'enter') renderEnterView();
   if (name === 'admin' && adminUnlocked) renderAdminPanel();
 }
 
@@ -1530,84 +1478,6 @@ function renderLeaderboard() {
 // ════════════════════════════════════════════════════════════════════════════
 // ENTRY FORM
 // ════════════════════════════════════════════════════════════════════════════
-let selected = { A: null, B: null, C: null, D: null };
-
-function buildPotPickers() {
-  const container = document.getElementById('pot-pickers');
-  let html = '';
-  for (const [pot, data] of Object.entries(POTS)) {
-    html += `<div class="pot-section">
-      <div class="pot-header">
-        <span class="pot-badge ${pot}">POT ${pot}</span>
-        <span class="pot-title">${data.label}</span>
-        <span class="pot-odds">${data.odds}</span>
-        <span class="pot-multiplier" style="margin-left:8px; font-size:11px; color:var(--muted)">Win=${data.win}pt · Draw=${data.draw}pt</span>
-      </div>
-      <div class="team-grid">`;
-    for (const team of shuffle(data.teams)) {
-      html += `<button class="team-btn" id="tbtn-${pot}-${team.name.replace(/\s+/g,'_')}"
-        onclick="selectTeam('${pot}','${team.name.replace(/'/g,"\\'")}')">
-        ${teamBadge(team.name, 'lg')}
-        <span class="team-name-small">${team.name}</span>
-      </button>`;
-    }
-    html += `</div></div>`;
-  }
-  container.innerHTML = html;
-}
-
-function selectTeam(pot, teamName) {
-  const name = document.getElementById('entry-name').value.trim();
-  if (!name) {
-    toast('Please enter your name first', 'error');
-    document.getElementById('entry-name').focus();
-    return;
-  }
-  // Deselect previous in this pot
-  if (selected[pot]) {
-    const prev = document.getElementById('tbtn-' + pot + '-' + selected[pot].replace(/\s+/g,'_'));
-    if (prev) prev.classList.remove('selected');
-  }
-  selected[pot] = teamName;
-  const btn = document.getElementById('tbtn-' + pot + '-' + teamName.replace(/\s+/g,'_'));
-  if (btn) btn.classList.add('selected');
-  updateEntryForm();
-}
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function updateEntryForm() {
-  const name = document.getElementById('entry-name').value.trim();
-  const email = document.getElementById('entry-email').value.trim();
-  const emailOk = EMAIL_RE.test(email);
-  const allPicked = Object.values(selected).every(Boolean);
-  const ready = name && emailOk && allPicked;
-
-  document.getElementById('submit-btn').disabled = !ready;
-
-  const summary = document.getElementById('entry-summary');
-  if (name || allPicked) {
-    summary.style.display = 'block';
-    document.getElementById('summary-name').textContent = name || '—';
-    document.getElementById('summary-email').textContent = email || '—';
-    document.getElementById('summary-fee').textContent = state.settings.entryFee || 2;
-
-    let teamsHtml = '';
-    for (const [pot, team] of Object.entries(selected)) {
-      if (team) {
-        teamsHtml += `<div class="entry-summary-row">
-          <span class="entry-summary-label"><span class="pot-tag ${pot}" style="font-size:10px">POT ${pot}</span></span>
-          <span class="entry-summary-value">${teamBadge(team)} ${esc(team)}</span>
-        </div>`;
-      }
-    }
-    document.getElementById('summary-teams').innerHTML = teamsHtml;
-  } else {
-    summary.style.display = 'none';
-  }
-}
-
-// Show either the entry form or the "entries closed" notice, per settings.
 // Earliest kickoff across all fixtures = the entry deadline (Date or null)
 function entryDeadline() {
   let earliest = null;
@@ -1624,115 +1494,11 @@ function deadlineLabel(d) {
     ', ' + d.toLocaleTimeString('en-GB', {hour:'numeric', minute:'2-digit'});
 }
 
-function entriesAreClosed() {
-  if (state.settings.entriesLocked) return true;
+// Rules page: entry-deadline row (derived from the earliest fixture kickoff)
+function renderRulesDeadline() {
   const d = entryDeadline();
-  return !!d && Date.now() >= d.getTime();
-}
-
-// "Current entries" list under the entry form — names + picks (no emails,
-// no points; helps people avoid an already-taken combination)
-function renderEnterEntries() {
-  const box = document.getElementById('enter-entries');
-  const entries = Object.values(state.entries || {})
-    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-
-  if (!entries.length) { box.innerHTML = ''; return; }
-
-  const rows = entries.map(e => {
-    const chips = Object.entries(e.teams || {}).map(([pot, team]) =>
-      `<span class="pot-tag ${pot}">${teamBadge(team)} ${esc(team)}</span>`
-    ).join('');
-    // Unpaid entries get the same greyed treatment as the leaderboard
-    const unpaidStyle = !e.paid ? 'opacity:0.45; filter:grayscale(0.6)' : '';
-    return `<div style="padding:10px 0; border-bottom:1px solid var(--border); ${unpaidStyle}">
-      <div style="font-weight:700; font-size:14px; margin-bottom:6px">${esc(e.name)}
-        ${!e.paid ? ' <span class="unpaid-badge">⏳ Awaiting payment</span>' : ''}</div>
-      <div class="lb-teams">${chips}</div>
-    </div>`;
-  }).join('');
-
-  box.innerHTML = `<div class="card">
-    <div class="card-title">Current entries (${entries.length})</div>
-    ${rows}
-  </div>`;
-}
-
-function renderEnterView() {
-  const locked = entriesAreClosed();
-  document.getElementById('entry-form-wrap').style.display = locked ? 'none' : 'block';
-  document.getElementById('entries-closed-msg').style.display = locked ? 'block' : 'none';
-  renderEnterEntries();
-
-  const d = entryDeadline();
-  const when = d ? ` — ${deadlineLabel(d)}` : '';
-  document.getElementById('entry-deadline-note').textContent =
-    `⏰ Entries must be in before the first game kicks off${when}.`;
   document.getElementById('rules-deadline').textContent =
-    d ? `Before the first kickoff — ${deadlineLabel(d)}` : 'Before the first kickoff';
-}
-
-function isDuplicateEntry(newTeams) {
-  // Check if this exact team combination already exists
-  for (const entry of Object.values(state.entries)) {
-    if (!entry.teams) continue;
-    const sameTeams = Object.keys(newTeams).every(pot =>
-      entry.teams[pot] === newTeams[pot]
-    );
-    if (sameTeams) return true;
-  }
-  return false;
-}
-
-async function submitEntry() {
-  if (entriesAreClosed()) return toast('Entries are closed — the season has started', 'error');
-  const name = document.getElementById('entry-name').value.trim();
-  const email = document.getElementById('entry-email').value.trim();
-  if (!name) return toast('Please enter your name', 'error');
-  if (!EMAIL_RE.test(email)) return toast('Please enter a valid email address', 'error');
-  if (!Object.values(selected).every(Boolean)) return toast('Please pick a team from every pot', 'error');
-
-  // Check for duplicate team combination
-  if (isDuplicateEntry(selected)) {
-    toast('⚠️ This team combination already exists! Pick different teams.', 'error');
-    return;
-  }
-
-  const entry = {
-    name,
-    email,
-    teams: { ...selected },
-    paid: false,
-    createdAt: Date.now()
-  };
-
-  const ref = dbRef('entries');
-  if (ref) {
-    try {
-      await ref.push(entry);
-      toast('Entry submitted! 🎉', 'success');
-      // Reset form
-      selected = { A: null, B: null, C: null, D: null };
-      document.getElementById('entry-name').value = '';
-      document.getElementById('entry-email').value = '';
-      buildPotPickers();
-      updateEntryForm();
-    } catch(e) {
-      toast('Error saving entry — check Firebase config', 'error');
-      console.error(e);
-    }
-  } else {
-    // Offline demo
-    const id = 'local_' + Date.now();
-    state.entries[id] = { ...entry, id };
-    renderEnterEntries();
-    toast('Entry saved (offline demo) 🎉', 'success');
-    selected = { A: null, B: null, C: null, D: null };
-    document.getElementById('entry-name').value = '';
-    document.getElementById('entry-email').value = '';
-    buildPotPickers();
-    updateEntryForm();
-  }
+    d ? `Before the first kickoff \u2014 ${deadlineLabel(d)}` : 'Before the first kickoff';
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1770,7 +1536,6 @@ function saveSetting(key, value) {
 function toggleEntriesLock() {
   saveSetting('entriesLocked', !state.settings.entriesLocked);
   renderLockButton();
-  renderEnterView();
 }
 
 function renderLockButton() {
@@ -2181,7 +1946,6 @@ function initFirebaseListeners() {
     state.entries = snap.val() || {};
     if (document.getElementById('view-leaderboard').classList.contains('active')) renderLeaderboard();
     if (adminUnlocked) renderAdminEntries();
-    renderEnterEntries();
   });
 
   dbRef('results').on('value', snap => {
@@ -2189,7 +1953,7 @@ function initFirebaseListeners() {
     if (adminUnlocked) { renderAdminEntries(); renderAdminResults(); }
     if (document.getElementById('view-leaderboard').classList.contains('active')) renderLeaderboard();
     if (document.getElementById('view-fixtures').classList.contains('active')) renderFixtures();
-    renderEnterView(); // deadline note derives from fixture kickoffs
+    renderRulesDeadline(); // deadline row derives from fixture kickoffs
   });
 
   dbRef('settings').on('value', snap => {
@@ -2197,7 +1961,6 @@ function initFirebaseListeners() {
     if (s) {
       state.settings = { ...state.settings, ...s };
       syncFeeDisplays();
-      renderEnterView();
       renderLockButton();
     }
   });
@@ -2226,9 +1989,7 @@ function esc(s) {
 // INIT
 // ════════════════════════════════════════════════════════════════════════════
 initFirebaseListeners();
-buildPotPickers();
-updateEntryForm();
-renderEnterView();
+renderRulesDeadline();
 renderLeaderboard();
 </script>
 </body>

@@ -79,10 +79,9 @@ The workflow then runs hourly at :15. GitHub pauses scheduled workflows after
 ## How results flow (and their honest limits)
 
 - The Action mirrors the full FPL fixtures list into Firebase every hour. A
-  result appears only once FPL marks the fixture finished — typically **30–60
-  minutes after full time** (FPL waits for bonus-point confirmation), plus up
-  to an hour of schedule. Matchday scores are not live-minute updates; that's
-  by design.
+  result appears once FPL marks the fixture over (we accept their provisional
+  full-time flag), plus up to an hour of schedule. Matchday scores are not
+  live-minute updates; that's by design.
 - **Admin score override is for feed outages only.** The hourly mirror rewrites
   the whole results node, so an override only sticks while the Action is
   failing or disabled. To force a result permanently (e.g. an abandoned match

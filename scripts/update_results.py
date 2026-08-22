@@ -20,7 +20,10 @@ def transform(fixtures, team_names):
     """FPL fixtures list -> {f<id>: {team1, team2, score1, score2, gw, kickoff, finished}}"""
     out = {}
     for f in fixtures:
-        finished = bool(f.get('finished')) and \
+        # finished_provisional flips at full time; FPL's plain `finished` can
+        # lag it by hours (it waits on bonus confirmation, which we don't use).
+        done_flag = bool(f.get('finished') or f.get('finished_provisional'))
+        finished = done_flag and \
             f.get('team_h_score') is not None and f.get('team_a_score') is not None
         out['f%d' % f['id']] = {
             'team1': team_names[f['team_h']],

@@ -37,6 +37,17 @@ class TransformTest(unittest.TestCase):
         out = transform(broken, TEAMS)
         self.assertFalse(out['f' + str(broken[0]['id'])]['finished'])
 
+    def test_provisionally_finished_fixture_counts(self):
+        # FPL can leave finished=false for hours after full time while
+        # finished_provisional=true (bonus not confirmed). The score is what
+        # we mirror, so provisional must count. Seen live: GW1 2026-27.
+        prov = [dict(self.fixtures[0], finished=False, finished_provisional=True,
+                     team_h_score=3, team_a_score=0)]
+        out = transform(prov, TEAMS)
+        r = out['f' + str(prov[0]['id'])]
+        self.assertTrue(r['finished'])
+        self.assertEqual((r['score1'], r['score2']), (3, 0))
+
     def test_gw_is_int_or_none_never_string(self):
         out = transform(self.fixtures, TEAMS)
         for v in out.values():

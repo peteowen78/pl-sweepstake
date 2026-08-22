@@ -1033,6 +1033,10 @@ main {
   <div id="leaderboard-content">
     <div class="loading-spinner">Loading leaderboard…</div>
   </div>
+
+  <div class="section-title" style="margin-top:36px">Team Points</div>
+  <div class="section-sub">Every team's sweepstake points — game scoring, not league points</div>
+  <div id="team-table"></div>
 </div>
 
 <!-- ── Entry View ────────────────────────────────────────────────────────── -->
@@ -1473,6 +1477,51 @@ function renderLeaderboard() {
 
   html += '</tbody></table>';
   document.getElementById('leaderboard-content').innerHTML = html;
+  renderTeamTable();
+}
+
+// Team table below the player leaderboard: played / W-D-L / sweepstake points
+function renderTeamTable() {
+  const stats = {};
+  for (const name of Object.keys(scoring.teamPot)) {
+    stats[name] = { p: 0, w: 0, d: 0, l: 0 };
+  }
+  for (const r of Object.values(state.results || {})) {
+    if (!isPlayed(r)) continue;
+    for (const [team, mine, theirs] of [[r.team1, r.score1, r.score2], [r.team2, r.score2, r.score1]]) {
+      const s = stats[team];
+      if (!s) continue;
+      s.p++;
+      if (mine > theirs) s.w++;
+      else if (mine === theirs) s.d++;
+      else s.l++;
+    }
+  }
+
+  const ranked = Object.entries(stats)
+    .map(([team, s]) => ({ team, ...s, pts: calcTeamPoints(team) }))
+    .sort((a, b) => b.pts - a.pts || b.w - a.w || a.team.localeCompare(b.team));
+
+  let html = `<table class="leaderboard-table">
+    <thead><tr>
+      <th style="width:40px">#</th>
+      <th>Team</th>
+      <th style="text-align:center">Played</th>
+      <th style="text-align:center">W–D–L</th>
+      <th>Points</th>
+    </tr></thead><tbody>`;
+
+  ranked.forEach((t, i) => {
+    html += `<tr class="lb-row">
+      <td class="lb-rank">${i + 1}</td>
+      <td><span class="pot-tag ${scoring.teamPot[t.team]}">${teamBadge(t.team)} ${esc(t.team)}</span></td>
+      <td style="text-align:center">${t.p}</td>
+      <td style="text-align:center; white-space:nowrap">${t.w}–${t.d}–${t.l}</td>
+      <td><div class="lb-points">${t.pts}</div></td>
+    </tr>`;
+  });
+
+  document.getElementById('team-table').innerHTML = html + '</tbody></table>';
 }
 
 // ════════════════════════════════════════════════════════════════════════════

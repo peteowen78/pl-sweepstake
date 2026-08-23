@@ -1484,7 +1484,7 @@ function renderLeaderboard() {
 function renderTeamTable() {
   const stats = {};
   for (const name of Object.keys(scoring.teamPot)) {
-    stats[name] = { p: 0, w: 0, d: 0, l: 0 };
+    stats[name] = { p: 0, w: 0, d: 0, l: 0, b: 0 };
   }
   for (const r of Object.values(state.results || {})) {
     if (!isPlayed(r)) continue;
@@ -1495,6 +1495,7 @@ function renderTeamTable() {
       if (mine > theirs) s.w++;
       else if (mine === theirs) s.d++;
       else s.l++;
+      if (mine >= 3) s.b++; // +1 bonus per match with 3+ goals (mirrors scoring)
     }
   }
 
@@ -1508,6 +1509,7 @@ function renderTeamTable() {
       <th>Team</th>
       <th style="text-align:center">Played</th>
       <th style="text-align:center">W–D–L</th>
+      <th style="text-align:center">Bonus pts</th>
       <th>Points</th>
     </tr></thead><tbody>`;
 
@@ -1517,6 +1519,7 @@ function renderTeamTable() {
       <td><span class="pot-tag ${scoring.teamPot[t.team]}">${teamBadge(t.team)} ${esc(t.team)}</span></td>
       <td style="text-align:center">${t.p}</td>
       <td style="text-align:center; white-space:nowrap">${t.w}–${t.d}–${t.l}</td>
+      <td style="text-align:center">${t.b}</td>
       <td><div class="lb-points">${t.pts}</div></td>
     </tr>`;
   });

@@ -18,7 +18,11 @@ jobs:
       # GitHub disables scheduled workflows after 60 days without repo commits.
       # Re-enabling an already-enabled workflow resets that timer, so this step
       # keeps the feed alive all season without needing dummy commits.
+      # It runs hourly but only needs to succeed once in 60 days, so a transient
+      # API hiccup must never fail the run (seen live: empty-response from the
+      # enable endpoint, 6 Nov 2026) — hence --silent and continue-on-error.
       - name: Keep schedule alive
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/update-results.yml/enable"
+        run: gh api --silent -X PUT "repos/${{ github.repository }}/actions/workflows/update-results.yml/enable"
